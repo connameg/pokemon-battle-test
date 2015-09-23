@@ -143,25 +143,154 @@ var potion = new Item("potion", 10, "HP");   //potion restores 10 HP here
 //kind, name, power, accuracy, type, PP
 var tackle = new Move("physical", "tackle", 50, 100, "normal", 35); 
 var scratch = new Move("physical", "scratch", 40, 100, "normal", 35);
-var vineWhip = new Move("physical", "vineWhip", 45, 100, "grass", 25);
-var waterGun = new Move("special", "waterGun", 40, 100, "water", 25);
+var vineWhip = new Move("physical", "vine whip", 45, 100, "grass", 25);
+var waterGun = new Move("special", "water gun", 40, 100, "water", 25);
 var ember = new Move("special", "ember", 40, 100, "fire", 25);
 
 //define status move objects
 //name, power, accuracy, type, PP, plusStat, minusStat, stage
 var growl = new StatusMove("growl", 0, 100, "normal", 40, false, "atk", 1);           //lowers enemy's attack
-var tailWhip = new StatusMove("tailWhip", 0, 100, "normal", 30, false, "def", 1);     //lowers enemy's defense
+var tailWhip = new StatusMove("tail whip", 0, 100, "normal", 30, false, "def", 1);     //lowers enemy's defense
 var howl = new StatusMove("howl", 0, 100, "normal", 30, "atk", false, 1);             //raises user's attack
+howl.self = true;     //howl affects the pokemon that uses the move, not the target
 
 //define Pokemon objects
 //based on level 1 stats with perfect IVs
 //name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, atk, def, spAtk, spDef, speed, statCondition, [moves], type, items
-var bulbasaur = new Pokemon("Bulbasaur", 12, 6, 6, 6, 6, 6, 12, 6, 6, 6, 6, 6, "none", [tackle, growl, vineWhip, howl], "grass");
+var bulbasaur = new Pokemon("Bulbasaur", 12, 6, 6, 6, 6, 7, 12, 6, 6, 6, 6, 7, "none", [tackle, growl, vineWhip, howl], "grass");
 var charmander = new Pokemon("Charmander", 12, 6, 6, 6, 6, 6, 12, 6, 6, 6, 6, 6, "none", [scratch, growl, ember, howl], "fire");
 var squirtle = new Pokemon("Squirtle", 12, 6, 6, 6, 6, 6, 12, 6, 6, 6, 6, 6, "none", [tackle, tailWhip, waterGun, howl], "water");
 
-//call functions to battle
-//example:
-bulbasaur.attack(tackle, charmander);   //bulbasaur uses tackle on charmander
-charmander.attack(ember, bulbasaur);    //charmander uses ember on bulbasaur
-bulbasaur.heal(potion, bulbasaur);      //uses a potion on bulbasaur
+
+
+//user input (global variables)
+//prompt user to choose pokemon
+function selectPokemon(){
+  var myPokemon = prompt("Do you choose BULBASAUR, CHARMANDER, or SQUIRTLE?").toLowerCase();
+  if (myPokemon === "bulbasaur") {            //if user picks bulbasaur, bot picks charmander
+    var myPokemon = bulbasaur;
+    var botPokemon = charmander;
+    console.log("The computer chose " + botPokemon.name);
+  } else if (myPokemon === "charmander") {    //if user picks charmander, bot picks squirtle
+    var myPokemon = charmander;
+    var botPokemon = squirtle;
+    console.log("The computer chose " + botPokemon.name);
+  } else {                                    //if user picks squirtle, bot picks bulbasaur
+    var myPokemon = squirtle;
+    var botPokemon = bulbasaur;
+    console.log("The computer chose " + botPokemon.name);
+  }
+//calculate who goes first based on speed stats
+  var speedy; 
+  if (myPokemon.speed > botPokemon.speed) {   //if user Pokemon outspeeds, user goes first
+    //userAction(myPokemon, botPokemon);  
+    speedy = "user"; 
+    battle(speedy, myPokemon, botPokemon);
+  } else if (botPokemon.speed > myPokemon.speed) {  //computer goes first
+    speedy = "bot";
+    battle(speedy, myPokemon, botPokemon);
+    //botAction(myPokemon, botPokemon);
+  } else { //if it's a tie
+    var coinToss = Math.floor(Math.random()*2); //randomly choose 0 or 1
+    if (coinToss === 0) {                  //user goes first
+      //userAction(myPokemon, botPokemon);
+      speedy = "user"; 
+      battle(speedy, myPokemon, botPokemon);
+    }
+    else {                                 //bot goes first
+      //botAction(myPokemon, botPokemon);
+      speedy = "bot";
+      battle(speedy, myPokemon, botPokemon);
+    }
+  }
+} //end selectPokemon function
+
+
+function userAction(myPokemon, botPokemon) {
+  if (myPokemon.HP > 0 && botPokemon.HP > 0) {
+  var fight = prompt("Will you ATTACK or HEAL?").toLowerCase();
+  if (fight === "attack") {
+      //ask what attack they will use, given the options
+      var attack1 = myPokemon.moves[0].name;
+      var attack2 = myPokemon.moves[1].name;
+      var attack3 = myPokemon.moves[2].name;
+      var attack4 = myPokemon.moves[3].name;
+      var whichAttack = prompt("Which attack will you use? " + attack1 + ", " + attack2 + ", " + attack3 + ", or "  + attack4 + "?").toLowerCase();
+      //if the user input doesn't match an attack name, start over
+      if (whichAttack !== attack1 && whichAttack !== attack2 && whichAttack !== attack3 && whichAttack !== attack4) {
+        console.log("Please choose a valid move.");
+        userAction(myPokemon, botPokemon);
+      } else {
+        //loop through each attack in the moves array
+          for (var i = 0; i < myPokemon.moves.length; i++) {
+            if (whichAttack === myPokemon.moves[i].name) {      //if there is a match,
+              var moveChoice = myPokemon.moves[i];              //set moveChoice equal to the chosen move
+            }
+          }
+        console.log(myPokemon.name + ", use " + moveChoice.name + "!!!");
+          if (moveChoice.hasOwnProperty("self")) {                //if the move affects the user, rather than the foe
+            myPokemon.attack(moveChoice, myPokemon);
+          } else {                                                //otherwise,
+          myPokemon.attack(moveChoice, botPokemon);               //start battling!!!
+        }
+      }
+  } else if (fight === "heal") {
+    //call the heal function
+    myPokemon.heal(potion, myPokemon);
+  } else {
+    console.log("That is not an option, choose again");
+    userAction(myPokemon, botPokemon);
+  }
+}//end if statement that executes when no pokemon are fainted
+}
+
+function botAction(myPokemon, botPokemon) {
+  if (myPokemon.HP > 0 && botPokemon.HP > 0) {
+//bot will use a potion if HP is 4 or less
+/*THIS IS COMMENTED OUT UNTIL I IMPLEMENT A POTION LIMIT
+OTHERWISE THE BATTLE WILL GO ON FOREVER
+if (botPokemon.HP < 4) {
+  botPokemon.heal(potion, botPokemon);
+} enclose rest of function in an else statement */
+//otherwise bot randomly selects an attack each turn
+var randomMove = Math.floor(Math.random() * 4);    //random number between 0 and 3
+var botMove = botPokemon.moves[randomMove];
+if (botMove.hasOwnProperty("self")) {              //if the move affects the user, rather than the foe
+  botPokemon.attack(botMove, botPokemon);          //call the "attack" on the user
+} else {
+  botPokemon.attack(botMove, myPokemon);           //otherwise, battle as usual
+}
+} //end if statement that executes when no pokemon are fainted
+}
+
+function battle(who, myPokemon, botPokemon){     //this function plays the game
+  if (who === "user"){
+    //lets the user move first each turn
+  userAction(myPokemon, botPokemon);
+  botAction(myPokemon, botPokemon);
+    if (myPokemon.HP <= 0 || botPokemon.HP <= 0) {   //if one pokemon has fainted, stop recursion
+        if (myPokemon.HP <= 0) {
+          console.log("The winner is " + botPokemon.name);     //declare the winner of the battle
+        } else {
+          console.log("The winner is " + myPokemon.name);
+        }
+      } else {
+      battle(who, myPokemon, botPokemon);
+      }                                    //keep battling
+  } else if (who === "bot") {
+    //lets the computer move first each turn
+  botAction(myPokemon, botPokemon);
+  userAction(myPokemon, botPokemon);
+    if (myPokemon.HP <= 0 || botPokemon.HP <= 0) {   //if one pokemon has fainted, stop recursion
+        if (myPokemon.HP <= 0) {
+            console.log("The winner is " + botPokemon.name);
+          } else {
+            console.log("The winner is " + myPokemon.name);
+          }
+      } else {
+      battle(who, myPokemon, botPokemon);
+      }     
+  }
+} 
+
+selectPokemon();   //initiates Pokemon selection and battle
