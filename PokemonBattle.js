@@ -1,7 +1,7 @@
 //Pokemon Battle Simulator! (work in progress)
 
 //Pokemon constructor function
-function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, atk, def, spAtk, spDef, speed, statCondition, moves, type, items) {
+function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, atk, def, spAtk, spDef, speed, statCondition, moves, type, inventory) {
 	this.name = name;
   //max stats: these CANNOT be changed, except by level up
   this.maxHP = maxHP;
@@ -20,7 +20,7 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
 	this.statCondition = statCondition;
 	this.moves = moves;                   //takes an array of moves. Each Pokemon gets 2 attacking moves and 2 status moves
 	this.type = type;                     //elemental typing of the pokemon
-  this.items = items;
+  this.inventory = inventory;           //number of items that an be used during battle
 	//reduces HP:
 	this.takeDamage = function(amt){      //called by Move.dealDamage() method
 		this.HP -= amt;                     //subtract damage from HP stat
@@ -43,13 +43,13 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
       if (this.HP + amt >= this.maxHP) {                 //if heal amount is greater than the maxHP
         console.log(this.name + " gained " + (this.maxHP - this.HP) + " HP");
         var healHP = this.maxHP;                         //cap the HP at its max value
-        this.HP = healHP;                                //set HP stat back to max HP
+        this.HP = healHP;                                //to prevent over-healing
         console.log(this.name + "'s total HP: " + this.HP);
       } else {
         this.HP += amt;                                  //otherwise, heal the given amount
         console.log(this.name + " gained " + amt + " HP. Total HP: " + this.HP);
       }
-    }   //for all other stats, raise the stat by the given amount
+    }  else { //for all other stats, raise the stat by the given amount
     //I am assuming level 25 for the time being
     //(((2 * level + 10)/250) * (stat to be lowered) * (amount to lower stat by) + 2);
     var raised = Math.floor((((2 * 25 + 10)/250) * (stat2) * (amt) + 2));
@@ -59,6 +59,7 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
     else if (stat === "spDef") {this.spDef += raised;}
     else if (stat === "speed") {this.speed += raised;} 
     console.log("Raised " + this.name + "'s " + stat + " by " + raised + ".");
+    }
     };  
 
   //lowers a single stat of a pokemon:
@@ -90,6 +91,7 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
   };
   //call on a Pokemon to restore its HP with an item:
   this.heal = function(item, target) {
+      this.inventory -= 1;     //subtract from inventory
       item.heal(target);       //call the item's heal function
   };
 }
@@ -162,7 +164,12 @@ function Item(name, healAmount, healStat){
 
 //define item objects
 //name, healAmount, healStat
-var potion = new Item("potion", 10, "HP");   //potion restores 10 HP here
+var oranBerry = new Item("oran berry", 10, "HP");
+var potion = new Item("potion", 20, "HP");
+var superPotion = new Item("super potion", 50, "HP");
+var mooMooMilk = new Item("moo moo milk", 100, "HP");
+var hyperPotion = new Item("hyper potion", 200, "HP");
+//note: I have changed the heal values of these items for this program
 
 //define move objects
 //kind, name, power, accuracy, type, PP
@@ -182,9 +189,9 @@ howl.self = true;     //howl affects the pokemon that uses the move, not the tar
 //define Pokemon objects
 //based on level 1 stats with perfect IVs
 //name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, atk, def, spAtk, spDef, speed, statCondition, [moves], type, items
-var bulbasaur = new Pokemon("Bulbasaur", /*max stats*/45, 49, 49, 65, 65, 45, /*reg stats*/45, 49, 49, 65, 65, 45, "none", [tackle, vineWhip, growl, howl], "grass");
-var charmander = new Pokemon("Charmander", /*max stats*/39, 52, 43, 60, 50, 65, /*reg stats*/39, 52, 43, 60, 50, 65, "none", [scratch, ember, growl, howl], "fire");
-var squirtle = new Pokemon("Squirtle", /*max stats*/44, 48, 65, 50, 64, 43, /*reg stats*/44, 48, 65, 50, 64, 43, "none", [tackle, waterGun, tailWhip, howl], "water");
+var bulbasaur = new Pokemon("Bulbasaur", /*max stats*/45, 49, 49, 65, 65, 45, /*reg stats*/45, 49, 49, 65, 65, 45, "none", [tackle, vineWhip, growl, howl], "grass", 1);
+var charmander = new Pokemon("Charmander", /*max stats*/39, 52, 43, 60, 50, 65, /*reg stats*/39, 52, 43, 60, 50, 65, "none", [scratch, ember, growl, howl], "fire", 1);
+var squirtle = new Pokemon("Squirtle", /*max stats*/44, 48, 65, 50, 64, 43, /*reg stats*/44, 48, 65, 50, 64, 43, "none", [tackle, waterGun, tailWhip, howl], "water", 1);
 
 
 
@@ -260,8 +267,23 @@ function userAction(myPokemon, botPokemon) {
         }
       }
   } else if (fight === "heal") {
-    //call the heal function
-    myPokemon.heal(potion, myPokemon);
+    //call the heal function with a different item depending on HP
+    if (myPokemon.inventory >=1 ) {
+      if (myPokemon.maxHP <= 20) {                   //1-20HP heals with oranBerry(10HP)
+        myPokemon.heal(oranBerry, myPokemon);
+      } else if (myPokemon.maxHP <= 50) {            //21-50HP heals with potion(20HP)
+        myPokemon.heal(potion, myPokemon);
+      } else if (myPokemon.maxHP <= 75){             //51-75HP heals with super potion(50HP)
+        myPokemon.heal(superPotion, myPokemon);  
+      } else if (myPokemon.maxHP <= 150) {           //100-150HP heals with Moo Moo Milk(100HP)
+        myPokemon.heal(mooMooMilk, myPokemon);
+      } else {                                       //151+HP heals with hyper potion(200HP)
+        myPokemon.heal(hyperPotion, myPokemon);
+      }
+    } else {         //if the inventory is empty
+      console.log("You're out of items! Please choose an attack instead.");
+      userAction(myPokemon, botPokemon);
+    }
   } else {
     console.log("That is not an option, choose again");
     userAction(myPokemon, botPokemon);
@@ -270,18 +292,26 @@ function userAction(myPokemon, botPokemon) {
 }
 
 function botAction(myPokemon, botPokemon) {
-  if (myPokemon.HP > 0 && botPokemon.HP > 0) {
-//bot will use a potion if HP is 4 or less
-/*THIS IS COMMENTED OUT UNTIL I IMPLEMENT A POTION LIMIT
-OTHERWISE THE BATTLE WILL GO ON FOREVER
-if (botPokemon.HP < 4) {
-  botPokemon.heal(potion, botPokemon);
-} enclose rest of function in an else statement */
+  if (myPokemon.HP > 0 && botPokemon.HP > 0) {    //if no pokemon are fainted
+//bot will use a potion if max HP is 20% or less
+if (botPokemon.HP < botPokemon.maxHP * 0.20 /*&& botPokemon.inventory >= 1*/) {
+     if (botPokemon.maxHP <= 20) {                  //1-20HP heals with oranBerry(10HP)
+      botPokemon.heal(oranBerry, botPokemon);
+    } else if (botPokemon.maxHP <= 50) {            //21-50HP heals with potion(20HP)
+      botPokemon.heal(potion, botPokemon);
+    } else if (botPokemon.maxHP <= 75){             //51-75HP heals with super potion(50HP)
+      botPokemon.heal(superPotion, botPokemon);  
+    } else if (botPokemon.maxHP <= 150) {           //100-150HP heals with Moo Moo Milk(100HP)
+      botPokemon.heal(mooMooMilk, botPokemon);
+    } else {                                        //151+HP heals with hyper potion(200HP)
+      botPokemon.heal(hyperPotion, botPokemon);
+    }
+}  else {
 //otherwise bot randomly selects an attack each turn
 //bot has 70% chance to use an attacking move (stored in moves[0] or moves[1])
 //30% chance of using a stat raising/lowering move (stored in moves[2]) or moves[3])
 
-var moveKind = Math.floor(Math.random() * (100 - 50 + 1)) + 50;  //random num between 0 and 100.
+var moveKind = Math.floor(Math.random() * (100 - 0 + 1)) + 0;  //random num between 0 and 100.
 //determine what kind of move to use:
 if (moveKind <= 70) {
   //use damage dealing move
@@ -299,13 +329,17 @@ if (botMove.hasOwnProperty("self")) {              //if the move affects the use
 } else {
   botPokemon.attack(botMove, myPokemon);           //otherwise, battle as usual
 }
+} //end else statement that executes when pokemon doesn't heal
 } //end if statement that executes when no pokemon are fainted
 }
 
 function battle(who, myPokemon, botPokemon){     //this function plays the game
+  console.log("-------------ROUND!-------------");
   if (who === "user"){
     //lets the user move first each turn
+  console.log("YOU:");
   userAction(myPokemon, botPokemon);
+  console.log("ENEMY:");
   botAction(myPokemon, botPokemon);
     if (myPokemon.HP <= 0 || botPokemon.HP <= 0) {   //if one pokemon has fainted, stop recursion
         if (myPokemon.HP <= 0) {
@@ -318,7 +352,9 @@ function battle(who, myPokemon, botPokemon){     //this function plays the game
       }                                    //keep battling
   } else if (who === "bot") {
     //lets the computer move first each turn
+  console.log("ENEMY:");
   botAction(myPokemon, botPokemon);
+  console.log("YOU:");
   userAction(myPokemon, botPokemon);
     if (myPokemon.HP <= 0 || botPokemon.HP <= 0) {   //if one pokemon has fainted, stop recursion
         if (myPokemon.HP <= 0) {
