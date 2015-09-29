@@ -34,11 +34,14 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
   //raises a single stat:
 	this.raiseStat = function(stat, amt){                  //called by Item.heal() and StatusMove.changeStat()
     //convert string to property to access the correct values
-    if (stat === "atk") {var stat2 = this.atk}
-    else if (stat === "def") {var stat2 = this.def}
-    else if (stat === "spAtk") {var stat2 = this.spAtk}
-    else if (stat === "spDef") {var stat2 = this.spDef}
-    else if (stat === "speed") {var stat2 = this.speed} 
+    if (stat === "atk") {var stat2 = this.atk; var stat3 = this.maxAtk;}
+    else if (stat === "def") {var stat2 = this.def; var stat3 = this.maxDef;}
+    else if (stat === "spAtk") {var stat2 = this.spAtk; var stat3 = this.maxSpAtk;}
+    else if (stat === "spDef") {var stat2 = this.spDef; var stat3 = this.maxSpDef;}
+    else if (stat === "speed") {var stat2 = this.speed; var stat3 = this.maxSpeed;} 
+    if (stat2 >= Math.floor(stat3 * 1.25)) {  //if the stat is greater/equal to 125% of max stat
+      console.log(this.name + "'s " + stat + " won't go any higher!");    //don't allow the stat to be raised again
+    } else {
     if (stat === "HP") {                                 //if HP is being raised (healed)...
       if (this.HP + amt >= this.maxHP) {                 //if heal amount is greater than the maxHP
         console.log(this.name + " gained " + (this.maxHP - this.HP) + " HP");
@@ -60,16 +63,20 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
     else if (stat === "speed") {this.speed += raised;} 
     console.log("Raised " + this.name + "'s " + stat + " by " + raised + ".");
     }
+    }
     };  
 
   //lowers a single stat of a pokemon:
   this.lowerStat = function(stat, amt){
-    if (stat === "atk") {var stat2 = this.atk}
-    else if (stat === "def") {var stat2 = this.def}
-    else if (stat === "spAtk") {var stat2 = this.spAtk}
-    else if (stat === "spDef") {var stat2 = this.spDef}
-    else if (stat === "speed") {var stat2 = this.speed} 
+    if (stat === "atk") {var stat2 = this.atk; var stat3 = this.maxAtk;}
+    else if (stat === "def") {var stat2 = this.def; var stat3 = this.maxDef;}
+    else if (stat === "spAtk") {var stat2 = this.spAtk; var stat3 = this.maxSpAtk;}
+    else if (stat === "spDef") {var stat2 = this.spDef; var stat3 = this.maxSpDef;}
+    else if (stat === "speed") {var stat2 = this.speed; var stat3 = this.maxSpeed;} 
     //lowering HP is covered specifically by the Pokemon.takeDamage() method
+  if (stat2 <= Math.floor(stat3 * 0.75)) {  //if stat is less than/equal to 75% of max stat
+    console.log(this.name + "'s " + stat + " won't go any lower!");    //don't allow the stat to be raised again
+  } else {
     var lowered = Math.floor((((2 * 25 + 10)/250) * (stat2) * (amt) + 2));
     if (stat === "atk") {this.atk -= lowered;}
     else if (stat === "def") {this.def -= lowered;}
@@ -77,7 +84,9 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
     else if (stat === "spDef") {this.spDef -= lowered;}
     else if (stat === "speed") {this.speed -= lowered;} 
     console.log("Lowered " + this.name + "'s " + stat + " by " + lowered + ".");
+    }
   };  
+
   //call on a Pokemon to initiate an attack:
 	this.attack = function(move, target){
 		console.log(this.name + " used " + move.name + " on " + target.name + "!");
@@ -294,7 +303,7 @@ function userAction(myPokemon, botPokemon) {
 function botAction(myPokemon, botPokemon) {
   if (myPokemon.HP > 0 && botPokemon.HP > 0) {    //if no pokemon are fainted
 //bot will use a potion if max HP is 20% or less
-if (botPokemon.HP < botPokemon.maxHP * 0.20 /*&& botPokemon.inventory >= 1*/) {
+if (botPokemon.HP < botPokemon.maxHP * 0.20 && botPokemon.inventory >= 1) {
      if (botPokemon.maxHP <= 20) {                  //1-20HP heals with oranBerry(10HP)
       botPokemon.heal(oranBerry, botPokemon);
     } else if (botPokemon.maxHP <= 50) {            //21-50HP heals with potion(20HP)
