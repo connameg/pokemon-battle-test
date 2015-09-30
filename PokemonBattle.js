@@ -88,12 +88,12 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
   };  
 
   //call on a Pokemon to initiate an attack:
-	this.attack = function(move, target){
+	this.attack = function(move, target, user){
 		console.log(this.name + " used " + move.name + " on " + target.name + "!");
     if (move.hasOwnProperty("kind")) {      //if it is a physical or special attack...
       var attacker = this.atk;              //attack stat of the pokemon who is currently attacking
       var spAttacker = this.spAtk;          //special attack stat of the pokemon who is currently attacking
-      move.dealDamage(target, attacker, spAttacker);              //call Move.dealdamage method
+      move.dealDamage(target, attacker, spAttacker, user);              //call Move.dealdamage method
     } else {                                //if it is a status move...
       move.changeStat(target);              //call the StatusMove.changeStat method
     }
@@ -105,6 +105,8 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
   };
 }
 
+
+
 //move constructor function (for damage-dealing moves)
 function Move(kind, name, power, accuracy, type, PP) {
   this.kind = kind;                     //physical or special
@@ -113,19 +115,40 @@ function Move(kind, name, power, accuracy, type, PP) {
 	this.accuracy = accuracy;
 	this.type = type;                     //elemental typing of the move
 	this.PP = PP;
-	this.dealDamage = function(target, attack, specialAttack){    //called by Pokemon.attack() method
+	this.dealDamage = function(target, attack, specialAttack, user){    //called by Pokemon.attack() method
+    var typeVar;       //holds the value for the type part of the calculation
+    //type effectiveness calculation
+    //value can be 2 (super effective), 1 (normal effectiveness), or 0.5 (resisted)
+    //set up super effective moves
+    if (this.type === "grass") {             //using a grass attack
+        if (target.type === "water") {console.log("It's super effective!"); typeVar = 2;}
+        else if (target.type === "fire" || target.type === "grass") {console.log("It's not very effective."); typeVar = 0.5;}
+        else {typeVar = 1;}
+    } else if (this.type === "fire") {       //using a fire attack
+        if (target.type === "grass") {console.log("It's super effective!"); typeVar = 2;}
+        else if (target.type === "water" || target.type === "fire") {console.log("It's not very effective."); typeVar = 0.5;}
+        else {typeVar = 1;}
+    } else if (this.type === "water") {      //using a water attack
+        if (target.type === "fire") {console.log("It's super effective!"); typeVar = 2;}
+        else if (target.type === "grass" || target.type === "water") {console.log("It's not very effective."); typeVar = 0.5;}
+        else {typeVar = 1;}
+    } else {typeVar = 1;}                    //using any other attack type is neutral for the purposes of this script
+    
     //oficial Pokemon damage calc
     //(((2 * level + 10)/250) * (user attack/target defense) * (moves's base pwr) + 2) * modifiers
     //until I program levels into this script, I will use 25 as the default level for all pokemon
     //modifiers is calculated as STAB * type * crit * other * random #
     //modifiers include critical hits, same-type attack bonus, type effectiveness, and random numbers
-    //until I program more modifiers, I will only use the random number.
+    //this program includes only grass, fire, and water types
     //the random number should be between .85 and 1
+    console.log("the move type is " + this.type);
+    console.log("the target type is " + target.type);
+    console.log("typeVar is " + typeVar);
     var roll = (Math.floor(Math.random() * (100 - 85 + 1)) + 85)/100;    //random number
     if (this.kind === "physical") {
-      var damage = Math.floor((((2 * 25 + 10)/250) * (attack / target.def) * (this.power) + 2) * roll);
+      var damage = Math.floor((((2 * 25 + 10)/250) * (attack / target.def) * (this.power) + 2) * roll * typeVar);
     } else if (this.kind === "special"){
-      var damage = Math.floor((((2 * 25 + 10)/250) * (specialAttack / target.spDef) * (this.power) + 2) * roll);
+      var damage = Math.floor((((2 * 25 + 10)/250) * (specialAttack / target.spDef) * (this.power) + 2) * roll * typeVar);
     }
     //in official pokemon games it is unlikely (but theoretically possible) to do 0 damage. 
     //In this script, attacks have 1 damage minimum
@@ -272,7 +295,7 @@ function userAction(myPokemon, botPokemon) {
           if (moveChoice.hasOwnProperty("self")) {                //if the move affects the user, rather than the foe
             myPokemon.attack(moveChoice, myPokemon);
           } else {                                                //otherwise,
-          myPokemon.attack(moveChoice, botPokemon);               //start battling!!!
+          myPokemon.attack(moveChoice, botPokemon, myPokemon);    //start battling!!! (include third optional 3rd parameter to pass on user stats)
         }
       }
   } else if (fight === "heal") {
@@ -336,7 +359,7 @@ if (moveKind <= 70) {
 if (botMove.hasOwnProperty("self")) {              //if the move affects the user, rather than the foe
   botPokemon.attack(botMove, botPokemon);          //call the "attack" on the user
 } else {
-  botPokemon.attack(botMove, myPokemon);           //otherwise, battle as usual
+  botPokemon.attack(botMove, myPokemon, botPokemon);           //otherwise, attack (include third optional 3rd parameter to pass on user stats)
 }
 } //end else statement that executes when pokemon doesn't heal
 } //end if statement that executes when no pokemon are fainted
