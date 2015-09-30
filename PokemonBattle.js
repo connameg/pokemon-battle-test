@@ -205,45 +205,56 @@ var hyperPotion = new Item("hyper potion", 200, "HP");
 
 //define move objects
 //kind, name, power, accuracy, type, PP
+//for the purposes of this script, moves to not have secondary effects
 var tackle = new Move("physical", "tackle", 50, 100, "normal", 35); 
 var scratch = new Move("physical", "scratch", 40, 100, "normal", 35);
 var vineWhip = new Move("physical", "vine whip", 45, 100, "grass", 25);
 var waterGun = new Move("special", "water gun", 40, 100, "water", 25);
 var ember = new Move("special", "ember", 40, 100, "fire", 25);
+var bite = new Move("physical", "bite", 60, 100, "dark", 25);
+var swift = new Move("special", "swift", 60, 100, "normal", 20);
 
 //define status move objects
 //name, power, accuracy, type, PP, plusStat, minusStat, stage
-var growl = new StatusMove("growl", 0, 100, "normal", 40, false, "atk", 0.03);           //lowers enemy's attack
-var tailWhip = new StatusMove("tail whip", 0, 100, "normal", 30, false, "def", 0.03);     //lowers enemy's defense
-var howl = new StatusMove("howl", 0, 100, "normal", 30, "atk", false, 0.03);             //raises user's attack
+var growl = new StatusMove("growl", 0, 100, "normal", 40, false, "atk", 0.03);           //lowers enemy's attack by 1 stage
+var tailWhip = new StatusMove("tail whip", 0, 100, "normal", 30, false, "def", 0.03);    //lowers enemy's defense by 1 stage
+var screech = new StatusMove("screech", 0, 100, "normal", 40, false, "def", 0.06);       //lowers enemy defense by 2 stages
+var howl = new StatusMove("howl", 0, 100, "normal", 30, "atk", false, 0.03);             //raises user's attack by 1 stage
 howl.self = true;     //howl affects the pokemon that uses the move, not the target
 
 //define Pokemon objects
 //based on level 1 stats with perfect IVs
 //name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, atk, def, spAtk, spDef, speed, statCondition, [moves], type, items
-var bulbasaur = new Pokemon("Bulbasaur", /*max stats*/45, 49, 49, 65, 65, 45, /*reg stats*/45, 49, 49, 65, 65, 45, "none", [tackle, vineWhip, growl, howl], "grass", 1);
-var charmander = new Pokemon("Charmander", /*max stats*/39, 52, 43, 60, 50, 65, /*reg stats*/39, 52, 43, 60, 50, 65, "none", [scratch, ember, growl, howl], "fire", 1);
-var squirtle = new Pokemon("Squirtle", /*max stats*/44, 48, 65, 50, 64, 43, /*reg stats*/44, 48, 65, 50, 64, 43, "none", [tackle, waterGun, tailWhip, howl], "water", 1);
-
+var bulbasaur = new Pokemon("Bulbasaur", /*max stats*/45, 49, 49, 65, 65, 45,/*reg stats*/45, 49, 49, 65, 65, 45, "none", [tackle, vineWhip, growl, howl], "grass", 1);
+var charmander = new Pokemon("Charmander", /*max stats*/39, 52, 43, 60, 50, 65,/*reg stats*/39, 52, 43, 60, 50, 65, "none", [scratch, ember, growl, howl], "fire", 1);
+var squirtle = new Pokemon("Squirtle", /*max stats*/44, 48, 65, 50, 64, 43,/*reg stats*/44, 48, 65, 50, 64, 43, "none", [tackle, waterGun, tailWhip, howl], "water", 1);
+var rattata = new Pokemon("Rattata", /*max stats*/30, 56, 35, 25, 35, 72,/*reg stats*/30, 56, 35, 25, 35, 72, "none", [tackle, scratch, bite, tailWhip], "normal", 1);
+var meowth = new Pokemon("Meowth", /*max stats*/40, 45, 35, 40, 40, 90,/*reg stats*/40, 45, 35, 40, 40, 90, "none", [scratch, bite, screech, growl], "normal", 1);
+var eevee = new Pokemon("Eevee", /*max stats*/55, 55, 50, 45, 65, 55,/*reg stats*/55, 55, 50, 45, 65, 55, "none", [swift, tackle, growl, tailWhip], "normal", 1);
+//*rattatta gets 3 attack moves to make up for having lower stats
 
 
 //user input (global variables)
 //prompt user to choose pokemon
 function selectPokemon(){
-  var myPokemon = prompt("Do you choose BULBASAUR, CHARMANDER, or SQUIRTLE?").toLowerCase();
-  if (myPokemon === "bulbasaur") {            //if user picks bulbasaur, bot picks charmander
-    var myPokemon = bulbasaur;
-    var botPokemon = charmander;
-    console.log("The computer chose " + botPokemon.name);
-  } else if (myPokemon === "charmander") {    //if user picks charmander, bot picks squirtle
-    var myPokemon = charmander;
-    var botPokemon = squirtle;
-    console.log("The computer chose " + botPokemon.name);
-  } else {                                    //if user picks squirtle, bot picks bulbasaur
-    var myPokemon = squirtle;
-    var botPokemon = bulbasaur;
-    console.log("The computer chose " + botPokemon.name);
-  }
+  var myPokemon = prompt("Choose a Pokemon: BULBASAUR, CHARMANDER, SQUIRTLE, MEOWTH, EEVEE, or RATTATA").toLowerCase();
+  if (myPokemon === "bulbasaur") {myPokemon = bulbasaur;}
+  else if (myPokemon === "charmander") {myPokemon = charmander;}
+  else if (myPokemon === "squirtle") {myPokemon = squirtle;}
+  else if (myPokemon === "meowth") {myPokemon = meowth;}
+  else if (myPokemon === "eevee") {myPokemon = eevee;}
+  else {myPokemon = rattata;}     //default option if you fail to make a proper choice. (you can also choose rattata)
+  console.log("I chooose you, " + myPokemon.name + "!!!");
+
+  var botChoose = Math.floor(Math.random() * (60 - 1 + 1)) + 1;  //random number between 1 and 60
+  if (botChoose <= 10) {botPokemon = bulbasaur;}
+  else if (botChoose <= 20) {botPokemon = charmander;}
+  else if (botChoose <= 30) {botPokemon = squirtle;}
+  else if (botChoose <= 40) {botPokemon = meowth;}
+  else if (botChoose <= 50) {botPokemon = eevee;}
+  else {botChoose = rattata;}
+  console.log("The computer chose " + botPokemon.name);
+
 //calculate who goes first based on speed stats
   var speedy; 
   if (myPokemon.speed > botPokemon.speed) {   //if user Pokemon outspeeds, user goes first
