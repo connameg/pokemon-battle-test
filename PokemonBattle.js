@@ -122,15 +122,19 @@ function Move(kind, name, power, accuracy, type, PP) {
     //set up super effective moves
     if (this.type === "grass") {             //using a grass attack
         if (target.type === "water") {console.log("It's super effective!"); typeVar = 2;}
-        else if (target.type === "fire" || target.type === "grass") {console.log("It's not very effective."); typeVar = 0.5;}
+        else if (target.type === "fire" || target.type === "grass" || target.type === "dragon") {console.log("It's not very effective."); typeVar = 0.5;}
         else {typeVar = 1;}
     } else if (this.type === "fire") {       //using a fire attack
         if (target.type === "grass") {console.log("It's super effective!"); typeVar = 2;}
-        else if (target.type === "water" || target.type === "fire") {console.log("It's not very effective."); typeVar = 0.5;}
+        else if (target.type === "water" || target.type === "fire" || target.type === "dragon") {console.log("It's not very effective."); typeVar = 0.5;}
         else {typeVar = 1;}
     } else if (this.type === "water") {      //using a water attack
         if (target.type === "fire") {console.log("It's super effective!"); typeVar = 2;}
-        else if (target.type === "grass" || target.type === "water") {console.log("It's not very effective."); typeVar = 0.5;}
+        else if (target.type === "grass" || target.type === "water" || target.type === "dragon") {console.log("It's not very effective."); typeVar = 0.5;}
+        else {typeVar = 1;}
+    } else if (this.type === "electric") {
+        if (target.type === "water") {console.log("It's super effective!"); typeVar = 2;}
+        else if (target.type === "grass" || target.type === "dragon") {console.log("It's not very effective."); typeVar = 0.5;}
         else {typeVar = 1;}
     } else {typeVar = 1;}                    //using any other attack type is neutral for the purposes of this script
     
@@ -139,11 +143,8 @@ function Move(kind, name, power, accuracy, type, PP) {
     //until I program levels into this script, I will use 25 as the default level for all pokemon
     //modifiers is calculated as STAB * type * crit * other * random #
     //modifiers include critical hits, same-type attack bonus, type effectiveness, and random numbers
-    //this program includes only grass, fire, and water types
+    //this program includes grass, fire, water, electric, dark , dragon and normal type moves
     //the random number should be between .85 and 1
-    console.log("the move type is " + this.type);
-    console.log("the target type is " + target.type);
-    console.log("typeVar is " + typeVar);
     var roll = (Math.floor(Math.random() * (100 - 85 + 1)) + 85)/100;    //random number
     if (this.kind === "physical") {
       var damage = Math.floor((((2 * 25 + 10)/250) * (attack / target.def) * (this.power) + 2) * roll * typeVar);
@@ -205,7 +206,7 @@ var hyperPotion = new Item("hyper potion", 200, "HP");
 
 //define move objects
 //kind, name, power, accuracy, type, PP
-//for the purposes of this script, moves to not have secondary effects
+//for the purposes of this script, moves like ember and quick attack do not have secondary effects
 var tackle = new Move("physical", "tackle", 50, 100, "normal", 35); 
 var scratch = new Move("physical", "scratch", 40, 100, "normal", 35);
 var vineWhip = new Move("physical", "vine whip", 45, 100, "grass", 25);
@@ -213,14 +214,20 @@ var waterGun = new Move("special", "water gun", 40, 100, "water", 25);
 var ember = new Move("special", "ember", 40, 100, "fire", 25);
 var bite = new Move("physical", "bite", 60, 100, "dark", 25);
 var swift = new Move("special", "swift", 60, 100, "normal", 20);
+var quickAttack = new Move("physical", "quick attack", 40, 100, "normal", 30);  
+var thunderShock = new Move("special", "thundershock", 40, 100, "electric", 30);
+var twister = new Move("special", "twister", 40, 400, "dragon", 20);
 
 //define status move objects
 //name, power, accuracy, type, PP, plusStat, minusStat, stage
-var growl = new StatusMove("growl", 0, 100, "normal", 40, false, "atk", 0.03);           //lowers enemy's attack by 1 stage
-var tailWhip = new StatusMove("tail whip", 0, 100, "normal", 30, false, "def", 0.03);    //lowers enemy's defense by 1 stage
-var screech = new StatusMove("screech", 0, 100, "normal", 40, false, "def", 0.06);       //lowers enemy defense by 2 stages
-var howl = new StatusMove("howl", 0, 100, "normal", 30, "atk", false, 0.03);             //raises user's attack by 1 stage
+var growl = new StatusMove("growl", 0, 100, "normal", 40, false, "atk", 0.05);                //lowers enemy's attack by 1 stage
+var tailWhip = new StatusMove("tail whip", 0, 100, "normal", 30, false, "def", 0.05);         //lowers enemy's defense by 1 stage
+var screech = new StatusMove("screech", 0, 100, "normal", 40, false, "def", 0.10);            //lowers enemy defense by 2 stages
+var dragonDance = new StatusMove("dragon dance", 0, 100, "dragon", 20, "atk", false, 0.10);   //raises attack by 2 stages
+var leer = new StatusMove("leer", 0, 100, "normal", 30, false, "def", 0.05);                  //lowers enemy's defense by 1 stage
+var howl = new StatusMove("howl", 0, 100, "normal", 30, "atk", false, 0.05);                  //raises user's attack by 1 stage
 howl.self = true;     //howl affects the pokemon that uses the move, not the target
+dragonDance.self = true;
 
 //define Pokemon objects
 //based on level 1 stats with perfect IVs
@@ -231,29 +238,39 @@ var squirtle = new Pokemon("Squirtle", /*max stats*/44, 48, 65, 50, 64, 43,/*reg
 var rattata = new Pokemon("Rattata", /*max stats*/30, 56, 35, 25, 35, 72,/*reg stats*/30, 56, 35, 25, 35, 72, "none", [tackle, scratch, bite, tailWhip], "normal", 1);
 var meowth = new Pokemon("Meowth", /*max stats*/40, 45, 35, 40, 40, 90,/*reg stats*/40, 45, 35, 40, 40, 90, "none", [scratch, bite, screech, growl], "normal", 1);
 var eevee = new Pokemon("Eevee", /*max stats*/55, 55, 50, 45, 65, 55,/*reg stats*/55, 55, 50, 45, 65, 55, "none", [swift, tackle, growl, tailWhip], "normal", 1);
+var pikachu = new Pokemon("Pikachu",/*max stats*/35, 55, 30, 50, 40, 90,/*reg stats*/35, 55, 30, 50, 40, 90, "none", [thunderShock, quickAttack, tailWhip, growl], "electric", 1);
+var dratini = new Pokemon("Dratini",/*max stats*/41, 64, 45, 50, 50, 50,/*reg stats*/41, 64, 45, 50, 50, 50, "none", [twister, tackle, leer, dragonDance], "dragon", 1);
 //*rattatta gets 3 attack moves to make up for having lower stats
 
 
 //user input (global variables)
 //prompt user to choose pokemon
 function selectPokemon(){
-  var myPokemon = prompt("Choose a Pokemon: BULBASAUR, CHARMANDER, SQUIRTLE, MEOWTH, EEVEE, or RATTATA").toLowerCase();
+  var myPokemon = prompt("Choose a Pokemon: BULBASAUR, CHARMANDER, SQUIRTLE, PIKACHU, DRATINI, EEVEE, MEOWTH, or RATTATA?").toLowerCase();
   if (myPokemon === "bulbasaur") {myPokemon = bulbasaur;}
   else if (myPokemon === "charmander") {myPokemon = charmander;}
   else if (myPokemon === "squirtle") {myPokemon = squirtle;}
-  else if (myPokemon === "meowth") {myPokemon = meowth;}
+  else if (myPokemon === "dratini") {myPokemon = dratini;}
   else if (myPokemon === "eevee") {myPokemon = eevee;}
-  else {myPokemon = rattata;}     //default option if you fail to make a proper choice. (you can also choose rattata)
+  else if (myPokemon === "meowth") {myPokemon = meowth;}
+  else if (myPokemon === "rattata") {myPokemon = rattata;}
+  else {myPokemon = pikachu;}     //default option if you fail to make a proper choice. (you can also choose it)
+  myPokemon.inventory += 1;       //will allow the user to heal twice
   console.log("I chooose you, " + myPokemon.name + "!!!");
 
-  var botChoose = Math.floor(Math.random() * (60 - 1 + 1)) + 1;  //random number between 1 and 60
-  if (botChoose <= 10) {botPokemon = bulbasaur;}
-  else if (botChoose <= 20) {botPokemon = charmander;}
-  else if (botChoose <= 30) {botPokemon = squirtle;}
-  else if (botChoose <= 40) {botPokemon = meowth;}
-  else if (botChoose <= 50) {botPokemon = eevee;}
-  else {botChoose = rattata;}
+  //select the computer's pokemon:
+  var availablePokemon = [bulbasaur, charmander, squirtle, meowth, dratini, eevee, pikachu, rattata];  //array of available pokemon
+  //remove the user's chosen pokemon from the array:
+  for (var p = 0; p < availablePokemon.length; p++) {      //loop through array
+    if (availablePokemon[p].name === myPokemon.name){
+      availablePokemon.splice(p,1);
+    }    
+  }
+  var arrLength = availablePokemon.length - 1;
+  var botChoose = Math.floor(Math.random() * (arrLength - 0 + 1)) + 0;  //random number between 0 and length of the array
+  botPokemon = availablePokemon[botChoose]; //set the computer's pokemon
   console.log("The computer chose " + botPokemon.name);
+
 
 //calculate who goes first based on speed stats
   var speedy; 
