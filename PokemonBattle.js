@@ -271,30 +271,7 @@ function selectPokemon(){
   botPokemon = availablePokemon[botChoose]; //set the computer's pokemon
   console.log("The computer chose " + botPokemon.name);
 
-
-//calculate who goes first based on speed stats
-  var speedy; 
-  if (myPokemon.speed > botPokemon.speed) {   //if user Pokemon outspeeds, user goes first
-    //userAction(myPokemon, botPokemon);  
-    speedy = "user"; 
-    battle(speedy, myPokemon, botPokemon);
-  } else if (botPokemon.speed > myPokemon.speed) {  //computer goes first
-    speedy = "bot";
-    battle(speedy, myPokemon, botPokemon);
-    //botAction(myPokemon, botPokemon);
-  } else { //if it's a tie
-    var coinToss = Math.floor(Math.random() * (1 - 0 + 1)) + 0; //randomly choose 0 or 1
-    if (coinToss === 0) {                  //user goes first
-      //userAction(myPokemon, botPokemon);
-      speedy = "user"; 
-      battle(speedy, myPokemon, botPokemon);
-    }
-    else {                                 //bot goes first
-      //botAction(myPokemon, botPokemon);
-      speedy = "bot";
-      battle(speedy, myPokemon, botPokemon);
-    }
-  }
+battle(myPokemon, botPokemon);
 } //end selectPokemon function
 
 
@@ -393,9 +370,25 @@ if (botMove.hasOwnProperty("self")) {              //if the move affects the use
 } //end if statement that executes when no pokemon are fainted
 }
 
-function battle(who, myPokemon, botPokemon){     //this function plays the game
+function battle(myPokemon, botPokemon){     //this function plays the game
   console.log("-------------ROUND!-------------");
-  if (who === "user"){
+  //calculate who goes first based on speed stats
+  var speedy; 
+  if (myPokemon.speed > botPokemon.speed) {   //if user Pokemon outspeeds, user goes first
+    //userAction(myPokemon, botPokemon);  
+    speedy = "user"; 
+  } else if (botPokemon.speed > myPokemon.speed) {  //computer goes first
+    speedy = "bot";
+  } else { //if it's a tie
+      var coinToss = Math.floor(Math.random() * (1 - 0 + 1)) + 0; //randomly choose 0 or 1
+      if (coinToss === 0) {                  //user goes first
+        speedy = "user"; 
+      } else {                                 //bot goes first
+        //botAction(myPokemon, botPokemon);
+        speedy = "bot";
+      }
+  }
+  if (speedy === "user"){
     //lets the user move first each turn
   console.log("YOU:");
   userAction(myPokemon, botPokemon);
@@ -408,9 +401,9 @@ function battle(who, myPokemon, botPokemon){     //this function plays the game
           console.log("The winner is " + myPokemon.name);
         }
       } else {
-      battle(who, myPokemon, botPokemon);
+      battle(myPokemon, botPokemon);
       }                                    //keep battling
-  } else if (who === "bot") {
+  } else if (speedy === "bot") {
     //lets the computer move first each turn
   console.log("ENEMY:");
   botAction(myPokemon, botPokemon);
@@ -423,7 +416,7 @@ function battle(who, myPokemon, botPokemon){     //this function plays the game
             console.log("The winner is " + myPokemon.name);
           }
       } else {
-      battle(who, myPokemon, botPokemon);
+      battle(myPokemon, botPokemon);
       }     
   }
 } 
