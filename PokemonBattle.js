@@ -17,10 +17,10 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
 	this.spAtk = spAtk;
 	this.spDef = spDef; 
 	this.speed = speed;
-	this.statCondition = statCondition;
+	this.statCondition = "none";
 	this.moves = moves;                   //takes an array of moves. Each Pokemon gets 2 attacking moves and 2 status moves
 	this.type = type;                     //elemental typing of the pokemon
-  this.inventory = inventory;           //number of items that an be used during battle
+  this.inventory = 1;                   //number of items that an be used during battle
 	//reduces HP:
 	this.takeDamage = function(amt){      //called by Move.dealDamage() method
 		this.HP -= amt;                     //subtract damage from HP stat
@@ -134,7 +134,7 @@ function Move(kind, name, power, accuracy, type, PP) {
         else {typeVar = 1;}
     } else if (this.type === "electric") {
         if (target.type === "water") {console.log("It's super effective!"); typeVar = 2;}
-        else if (target.type === "grass" || target.type === "dragon") {console.log("It's not very effective."); typeVar = 0.5;}
+        else if (target.type === "grass" || target.type === "dragon" || target.type === "electric") {console.log("It's not very effective."); typeVar = 0.5;}
         else {typeVar = 1;}
     } else {typeVar = 1;}                    //using any other attack type is neutral for the purposes of this script
     
@@ -230,46 +230,107 @@ howl.self = true;     //howl affects the pokemon that uses the move, not the tar
 dragonDance.self = true;
 
 //define Pokemon objects
-//based on level 1 stats with perfect IVs
-//name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, atk, def, spAtk, spDef, speed, statCondition, [moves], type, items
-var bulbasaur = new Pokemon("Bulbasaur", /*max stats*/45, 49, 49, 65, 65, 45,/*reg stats*/45, 49, 49, 65, 65, 45, "none", [tackle, vineWhip, growl, howl], "grass", 1);
-var charmander = new Pokemon("Charmander", /*max stats*/39, 52, 43, 60, 50, 65,/*reg stats*/39, 52, 43, 60, 50, 65, "none", [scratch, ember, growl, howl], "fire", 1);
-var squirtle = new Pokemon("Squirtle", /*max stats*/44, 48, 65, 50, 64, 43,/*reg stats*/44, 48, 65, 50, 64, 43, "none", [tackle, waterGun, tailWhip, howl], "water", 1);
-var rattata = new Pokemon("Rattata", /*max stats*/30, 56, 35, 25, 35, 72,/*reg stats*/30, 56, 35, 25, 35, 72, "none", [tackle, scratch, bite, tailWhip], "normal", 1);
-var meowth = new Pokemon("Meowth", /*max stats*/40, 45, 35, 40, 40, 90,/*reg stats*/40, 45, 35, 40, 40, 90, "none", [scratch, bite, screech, growl], "normal", 1);
-var eevee = new Pokemon("Eevee", /*max stats*/55, 55, 50, 45, 65, 55,/*reg stats*/55, 55, 50, 45, 65, 55, "none", [swift, tackle, growl, tailWhip], "normal", 1);
-var pikachu = new Pokemon("Pikachu",/*max stats*/35, 55, 30, 50, 40, 90,/*reg stats*/35, 55, 30, 50, 40, 90, "none", [thunderShock, quickAttack, tailWhip, growl], "electric", 1);
-var dratini = new Pokemon("Dratini",/*max stats*/41, 64, 45, 50, 50, 50,/*reg stats*/41, 64, 45, 50, 50, 50, "none", [twister, tackle, leer, dragonDance], "dragon", 1);
-//*rattatta gets 3 attack moves to make up for having lower stats
+function Pikachu() {
+  this.species = "Pikachu"; this.name = this.species;
+  //max stats: these CANNOT be changed, except by level up
+  this.maxHP = 35; this.maxAtk = 55; this.maxDef = 40; this.maxSpAtk = 50; this.maxSpDef = 50; this.maxSpeed = 90;
+  //these stats CAN be changed:
+  this.HP = 35; this.atk = 55;  this.def = 40;  this.spAtk = 50;  this.spDef = 50;  this.speed = 90;
+  this.moves = [thunderShock, quickAttack, tailWhip, growl]; 
+  this.type = "electric";
+}
+function Dratini(){
+  this.name = "Dratini"; 
+  this.maxHP = 41; this.maxAtk = 64; this.maxDef = 45; this.maxSpAtk = 50; this.maxSpDef = 50; this.maxSpeed = 50;
+  //these stats CAN be changed:
+  this.HP = 41; this.atk = 64; this.def = 45; this.spAtk = 50; this.spDef = 50; this.speed = 50;
+  this.moves = [twister, tackle, leer, dragonDance]; 
+  this.type = "dragon";    
+}
+function Eevee(){
+  this.name = "Eevee";
+  this.maxHP = 55; this.maxAtk = 55; this.maxDef = 50; this.maxSpAtk = 45; this.maxSpDef = 65; this.maxSpeed = 55;
+  //these stats CAN be changed:
+  this.HP = 55; this.atk = 55; this.def = 50; this.spAtk = 45; this.spDef = 65; this.speed = 55;
+  this.moves = [swift, tackle, growl, tailWhip]; 
+  this.type = "normal";    
+}
+function Meowth(){
+  this.name = "Meowth";
+  this.maxHP = 40; this.maxAtk = 45; this.maxDef = 35; this.maxSpAtk = 40; this.maxSpDef = 40; this.maxSpeed = 90;
+  //these stats CAN be changed:
+  this.HP = 40; this.atk = 45; this.def = 35; this.spAtk = 40; this.spDef = 40; this.speed = 90;
+  this.moves = [scratch, bite, screech, growl]; 
+  this.type = "normal";    
+}
+function Rattata(){
+  this.name = "Rattata";
+  this.maxHP = 30; this.maxAtk = 56; this.maxDef = 35; this.maxSpAtk = 25; this.maxSpDef = 35; this.maxSpeed = 72;
+  //these stats CAN be changed:
+  this.HP = 30; this.atk = 56; this.def = 35; this.spAtk = 25; this.spDef = 35; this.speed = 72;
+  this.moves = [tackle, scratch, bite, tailWhip]; 
+  this.type = "normal";    
+}
+function Squirtle(){
+  this.name = "Squirtle";
+  this.maxHP = 44; this.maxAtk = 48; this.maxDef = 65; this.maxSpAtk = 50; this.maxSpDef = 64; this.maxSpeed = 43;
+  //these stats CAN be changed:
+  this.HP = 44; this.atk = 48; this.def = 65; this.spAtk = 50; this.spDef = 64; this.speed = 43;
+  this.moves = [tackle, waterGun, tailWhip, howl]; 
+  this.type = "water";    
+}
+function Charmander(){
+  this.name = "Charmander";
+  this.maxHP = 39; this.maxAtk = 52; this.maxDef = 43; this.maxSpAtk = 60; this.maxSpDef = 50; this.maxSpeed = 65;
+  //these stats CAN be changed:
+  this.HP = 39; this.atk = 52; this.def = 43; this.spAtk = 60; this.spDef = 50; this.speed = 65;
+  this.moves = [scratch, ember, growl, howl]; 
+  this.type = "fire";    
+}
+function Bulbasaur(){
+  this.name = "Bulbasaur";
+  this.maxHP = 45; this.maxAtk = 49; this.maxDef = 49; this.maxSpAtk = 65; this.maxSpDef = 65; this.maxSpeed = 45;
+  //these stats CAN be changed:
+  this.HP = 45; this.atk = 49; this.def = 49; this.spAtk = 65; this.spDef = 65; this.speed = 45;
+  this.moves = [tackle, vineWhip, growl, howl]; 
+  this.type = "grass";    
+}
+Pikachu.prototype = new Pokemon();      Dratini.prototype = new Pokemon();    Eevee.prototype = new Pokemon();
+Meowth.prototype = new Pokemon();       Rattata.prototype = new Pokemon();    Squirtle.prototype = new Pokemon();
+Charmander.prototype = new Pokemon();   Bulbasaur.prototype = new Pokemon();
 
 
-//user input (global variables)
+//user input (local variables)
 //prompt user to choose pokemon
 function selectPokemon(){
-  var myPokemon = prompt("Choose a Pokemon: BULBASAUR, CHARMANDER, SQUIRTLE, PIKACHU, DRATINI, EEVEE, MEOWTH, or RATTATA?").toLowerCase();
-  if (myPokemon === "bulbasaur") {myPokemon = bulbasaur;}
-  else if (myPokemon === "charmander") {myPokemon = charmander;}
-  else if (myPokemon === "squirtle") {myPokemon = squirtle;}
-  else if (myPokemon === "dratini") {myPokemon = dratini;}
-  else if (myPokemon === "eevee") {myPokemon = eevee;}
-  else if (myPokemon === "meowth") {myPokemon = meowth;}
-  else if (myPokemon === "rattata") {myPokemon = rattata;}
-  else {myPokemon = pikachu;}     //default option if you fail to make a proper choice. (you can also choose it)
+  var choosePokemon = prompt("Choose a Pokemon: BULBASAUR, CHARMANDER, SQUIRTLE, PIKACHU, DRATINI, EEVEE, MEOWTH, or RATTATA?").toLowerCase();
+  if (choosePokemon === "bulbasaur") {myPokemon = new Bulbasaur();}
+  else if (choosePokemon === "charmander") {myPokemon = new Charmander();}
+  else if (choosePokemon === "squirtle") {myPokemon = new Squirtle();}
+  else if (choosePokemon === "dratini") {myPokemon = new Dratini();}
+  else if (choosePokemon === "eevee") {myPokemon = new Eevee();}
+  else if (choosePokemon === "meowth") {myPokemon = new Meowth();}
+  else if (choosePokemon === "rattata") {myPokemon = new Rattata();}
+  else {myPokemon = new Pikachu();}     //default option if you fail to make a proper choice. (you can also choose it)
   myPokemon.inventory += 1;       //will allow the user to heal twice
-  console.log("I chooose you, " + myPokemon.name + "!!!");
+  //give user the option to choose a nickname
+  var chooseNickname = confirm("Do you want to give your " + choosePokemon + " a nickname? Click 'OK' for yes, and 'CANCEL' for no");
+  if (chooseNickname === true) {var pokeNickname = prompt("What will you name your " + choosePokemon + "?"); myPokemon.name = pokeNickname;}
+  console.log("I choose you, " + myPokemon.name + "!!!");
 
   //select the computer's pokemon:
-  var availablePokemon = [bulbasaur, charmander, squirtle, meowth, dratini, eevee, pikachu, rattata];  //array of available pokemon
-  //remove the user's chosen pokemon from the array:
-  for (var p = 0; p < availablePokemon.length; p++) {      //loop through array
-    if (availablePokemon[p].name === myPokemon.name){
-      availablePokemon.splice(p,1);
-    }    
-  }
-  var arrLength = availablePokemon.length - 1;
-  var botChoose = Math.floor(Math.random() * (arrLength - 0 + 1)) + 0;  //random number between 0 and length of the array
-  botPokemon = availablePokemon[botChoose]; //set the computer's pokemon
+  var botChoose = Math.floor(Math.random() * (8 - 1 + 1)) + 1;  //random number from 1-8 represents number of pokemon
+  if (botChoose === 1) {botPokemon = new Bulbasaur();}
+  else if (botChoose === 2) {botPokemon = new Charmander();}
+  else if (botChoose === 3) {botPokemon = new Squirtle();}
+  else if (botChoose === 4) {botPokemon = new Dratini();}
+  else if (botChoose === 5) {botPokemon = new Eevee();}
+  else if (botChoose === 6) {botPokemon = new Meowth();}
+  else if (botChoose === 7) {botPokemon = new Rattata();}
+  else {botPokemon = new Pikachu();}
   console.log("The computer chose " + botPokemon.name);
+  //if the computer & user choose the same pokemon, prefix computer pokemon's name with "enemy" to differentiate it:
+  if (myPokemon.name === botPokemon.name) {botPokemon.name = "Enemy " + botPokemon.name;}
 
 battle(myPokemon, botPokemon);
 } //end selectPokemon function
