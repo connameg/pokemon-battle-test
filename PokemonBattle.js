@@ -106,7 +106,6 @@ function Pokemon(name, maxHP, maxAtk, maxDef, maxSpAtk, maxSpDef, maxSpeed, HP, 
 }
 
 
-
 //move constructor function (for damage-dealing moves)
 function Move(kind, name, power, accuracy, type, PP) {
   this.kind = kind;                     //physical or special
@@ -231,7 +230,7 @@ dragonDance.self = true;
 
 //define Pokemon objects
 function Pikachu() {
-  this.species = "Pikachu"; this.name = this.species;
+  this.species = "Pikachu";  this.name = this.species;
   //max stats: these CANNOT be changed, except by level up
   this.maxHP = 35; this.maxAtk = 55; this.maxDef = 40; this.maxSpAtk = 50; this.maxSpDef = 50; this.maxSpeed = 90;
   //these stats CAN be changed:
@@ -240,7 +239,7 @@ function Pikachu() {
   this.type = "electric";
 }
 function Dratini(){
-  this.name = "Dratini"; 
+  this.species = "Dratini"; this.name = this.species;
   this.maxHP = 41; this.maxAtk = 64; this.maxDef = 45; this.maxSpAtk = 50; this.maxSpDef = 50; this.maxSpeed = 50;
   //these stats CAN be changed:
   this.HP = 41; this.atk = 64; this.def = 45; this.spAtk = 50; this.spDef = 50; this.speed = 50;
@@ -248,7 +247,7 @@ function Dratini(){
   this.type = "dragon";    
 }
 function Eevee(){
-  this.name = "Eevee";
+  this.species = "Eevee";  this.name = this.species;
   this.maxHP = 55; this.maxAtk = 55; this.maxDef = 50; this.maxSpAtk = 45; this.maxSpDef = 65; this.maxSpeed = 55;
   //these stats CAN be changed:
   this.HP = 55; this.atk = 55; this.def = 50; this.spAtk = 45; this.spDef = 65; this.speed = 55;
@@ -256,7 +255,7 @@ function Eevee(){
   this.type = "normal";    
 }
 function Meowth(){
-  this.name = "Meowth";
+  this.species = "Meowth"; this.name = this.species;
   this.maxHP = 40; this.maxAtk = 45; this.maxDef = 35; this.maxSpAtk = 40; this.maxSpDef = 40; this.maxSpeed = 90;
   //these stats CAN be changed:
   this.HP = 40; this.atk = 45; this.def = 35; this.spAtk = 40; this.spDef = 40; this.speed = 90;
@@ -264,7 +263,7 @@ function Meowth(){
   this.type = "normal";    
 }
 function Rattata(){
-  this.name = "Rattata";
+  this.species = "Rattata";  this.name = this.species;
   this.maxHP = 30; this.maxAtk = 56; this.maxDef = 35; this.maxSpAtk = 25; this.maxSpDef = 35; this.maxSpeed = 72;
   //these stats CAN be changed:
   this.HP = 30; this.atk = 56; this.def = 35; this.spAtk = 25; this.spDef = 35; this.speed = 72;
@@ -272,7 +271,7 @@ function Rattata(){
   this.type = "normal";    
 }
 function Squirtle(){
-  this.name = "Squirtle";
+  this.species = "Squirtle";  this.name = this.species;
   this.maxHP = 44; this.maxAtk = 48; this.maxDef = 65; this.maxSpAtk = 50; this.maxSpDef = 64; this.maxSpeed = 43;
   //these stats CAN be changed:
   this.HP = 44; this.atk = 48; this.def = 65; this.spAtk = 50; this.spDef = 64; this.speed = 43;
@@ -280,7 +279,7 @@ function Squirtle(){
   this.type = "water";    
 }
 function Charmander(){
-  this.name = "Charmander";
+  this.species = "Charmander";  this.name = this.species;
   this.maxHP = 39; this.maxAtk = 52; this.maxDef = 43; this.maxSpAtk = 60; this.maxSpDef = 50; this.maxSpeed = 65;
   //these stats CAN be changed:
   this.HP = 39; this.atk = 52; this.def = 43; this.spAtk = 60; this.spDef = 50; this.speed = 65;
@@ -288,7 +287,7 @@ function Charmander(){
   this.type = "fire";    
 }
 function Bulbasaur(){
-  this.name = "Bulbasaur";
+  this.species = "Bulbasaur"; this.name = this.species;
   this.maxHP = 45; this.maxAtk = 49; this.maxDef = 49; this.maxSpAtk = 65; this.maxSpDef = 65; this.maxSpeed = 45;
   //these stats CAN be changed:
   this.HP = 45; this.atk = 49; this.def = 49; this.spAtk = 65; this.spDef = 65; this.speed = 45;
